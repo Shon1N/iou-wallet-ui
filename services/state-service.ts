@@ -1,4 +1,4 @@
-import AuthDTO  from '../dtos/auth-dto';
+import AuthDTO from "../dtos/auth-dto";
 
 class StateService {
   private _auth: AuthDTO | null = null;
@@ -13,7 +13,7 @@ class StateService {
   }
 
   isAuthenticated(): boolean {
-    return this._auth !== null && this._auth.Token?.length > 0;
+    return this._auth !== null && this._auth.token?.length > 0;
   }
 
   setAuth(authData: AuthDTO) {
@@ -30,14 +30,13 @@ class StateService {
     this.listeners.push(listener);
     listener(this.isAuthenticated()); // Notify the initial state
     return () => {
-      this.listeners = this.listeners.filter(l => l !== listener);
+      this.listeners = this.listeners.filter((l) => l !== listener);
     };
   }
 
   private notifyListeners(isAuthenticated: boolean) {
-    this.listeners.forEach(listener => listener(isAuthenticated));
+    this.listeners.forEach((listener) => listener(isAuthenticated));
   }
-
 }
 
 const stateService = new StateService();

@@ -2,9 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import React, { useRef, useState } from "react";
 import {
-  Alert,
   Image,
-  Linking,
   Modal,
   Pressable,
   ScrollView,
@@ -14,37 +12,13 @@ import {
   View,
 } from "react-native";
 import stateService from "../../services/state-service";
-//import StravaConfigDTO from '../../dtos/strava-config-dto';
-//import { authorize } from 'react-native-app-auth';
-
-// const stravaAuthConfig: StravaConfigDTO = {
-//   clientId: 'YOUR_STRAVA_CLIENT_ID',
-//   clientSecret: 'YOUR_STRAVA_CLIENT_SECRET',
-//   redirectUrl: 'YOUR_APP_REDIRECT_URL',
-//   scopes: ['read_all', 'activity:read_all'],
-//   serviceConfiguration: {
-//     authorizationEndpoint: 'https://www.strava.com/oauth/authorize',
-//     tokenEndpoint: 'https://www.strava.com/oauth/token',
-//     revocationEndpoint: 'https://www.strava.com/oauth/deauthorize',
-//   },
-// };
-
-//const stravaAuthUrl = 'https://www.strava.com/oauth/mobile/authorize?client_id=157862&client_secret=b2f479f3766b5ef263a71681bdab0260a3ce4fe1&code=78e8307ab7845284fe1977f3b8adc8bbb6b01783&grant_type=78e8307ab7845284fe1977f3b8a';
-const client_id = "157863";
-const client_secret = "33a954d453c0230974494437e9e779cec3698cf7";
-const redirect_uri = "https://com.roadrunnerapp"; //'https://www.intric.co.za';
-const scope = "activity:read_all";
-const response_type = "code";
-//https://www.intric.co.za/?code=3295f3f4c24ad7e71660168a9fcb01ecb5b580ad&scope=activity%3Aread_all%2Cread
-const stravaAuthUrl = `https://www.strava.com/oauth/mobile/authorize?client_id=${client_id}&client_secret=${client_secret}&scope=${scope}&response_type=${response_type}&redirect_uri=${redirect_uri}`;
 
 export default function ProfilePage() {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const settingsIconRef = useRef<View>(null);
   const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
-  const firstname: string = stateService.auth?.Name || "";
-  const surname: string = stateService.auth?.Surname || "";
-  const username: string = stateService.auth?.Username || "";
+  const publicName: string = stateService.auth?.publiName || "";
+  const username: string = stateService.auth?.username || "";
 
   const handleSettingsPress = () => {
     if (settingsIconRef.current) {
@@ -54,31 +28,6 @@ export default function ProfilePage() {
       });
     } else {
       setIsMenuVisible(!isMenuVisible); // Fallback if ref is not available immediately
-    }
-  };
-
-  const handleConnectStrava = async () => {
-    setIsMenuVisible(false); // Close the menu before starting auth
-    try {
-      console.log("Initiating Strava authorization...");
-      Linking.openURL(stravaAuthUrl)
-        .catch((err) => console.error("An error occurred: ", err))
-        .then((res) => {
-          console.log("Strava authorization response:", res);
-        });
-      //await StravaService.GetAccessToken();
-      // const result = await authorize(stravaAuthConfig);
-      // if (result && result.authorizationCode) {
-      //   console.log('Authorization code received:', result.authorizationCode);
-      // } else {
-      //   console.log('Strava authorization failed or was cancelled.');
-      // }
-    } catch (err: any) {
-      console.log("Strava authorization error:", err);
-      if (err.message) {
-        console.log("Error", err.message);
-      }
-      Alert.alert("Error", "Could not connect to Strava.");
     }
   };
 
@@ -96,7 +45,10 @@ export default function ProfilePage() {
         visible={isMenuVisible}
         onRequestClose={() => setIsMenuVisible(false)}
       >
-        <View style={styles.modalOverlay}>
+        <View
+          style={styles.modalOverlay}
+          onTouchEnd={() => setIsMenuVisible(false)}
+        >
           <View
             style={{
               position: "absolute",
@@ -105,14 +57,6 @@ export default function ProfilePage() {
             }}
           >
             <View style={styles.menu}>
-              <Pressable
-                onPress={async () => {
-                  await handleConnectStrava();
-                  setIsMenuVisible(false);
-                }}
-              >
-                <Text style={styles.menuItem}>Strava</Text>
-              </Pressable>
               <Pressable
                 onPress={() => {
                   setIsMenuVisible(false);
@@ -140,11 +84,9 @@ export default function ProfilePage() {
             source={{ uri: "https://picsum.photos/seed/picsum/200/300" }}
           />
         </View>
-        <Text style={styles.headerText}>
-          {firstname} {surname}
-        </Text>
+        <Text style={styles.headerText}>{publicName}</Text>
         <Text style={styles.subHeaderText}>@{username} </Text>
-        <Text style={styles.subHeaderText}>On IOU-Wallet since 2024 </Text>
+        <Text style={styles.subHeaderText}>On IOU Wallet since 2024 </Text>
       </View>
 
       <View style={styles.content}>
@@ -155,7 +97,7 @@ export default function ProfilePage() {
               style={styles.friendTagButton}
             >
               <Text style={styles.friendTagText}>5 </Text>
-              <Text style={styles.friendTagText}>Friends </Text>
+              <Text style={styles.friendTagText}>Lent </Text>
             </TouchableOpacity>
           </View>
           <View style={styles.friendTagCard}>
@@ -164,27 +106,13 @@ export default function ProfilePage() {
               style={styles.friendTagButton}
             >
               <Text style={styles.friendTagText}>1 </Text>
-              <Text style={styles.friendTagText}>Leagues </Text>
+              <Text style={styles.friendTagText}>Borrowed </Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.card}>
-          <TouchableOpacity
-            onPress={() => console.log("Add friends Pressed")}
-            style={styles.addFriendButton}
-          >
-            <Ionicons name="person-add-outline" size={24} color="#fff" />
-            <Text style={styles.friendTagText}>Add Friends </Text>
-          </TouchableOpacity>
-        </View>
-
         <View style={styles.pageSection}>
-          <Text style={styles.pageSectionText}>Stats </Text>
-        </View>
-
-        <View style={styles.pageSection}>
-          <Text style={styles.pageSectionText}>Trophies </Text>
+          <Text style={styles.pageSectionText}>Some section </Text>
         </View>
       </View>
     </ScrollView>
@@ -206,8 +134,8 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 60,
     backgroundColor: "#088395",
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
     alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {

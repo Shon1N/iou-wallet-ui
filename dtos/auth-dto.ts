@@ -1,9 +1,16 @@
+import PermissionDTO from "./permission-dto";
+import RoleDTO from "./role-dto";
+
 export default interface AuthDTO {
-    Id: string;
-    Name: string;
-    Surname: string;
-    Username: string;
-    Email: string;
-    Role: string;
-    Token: string;
+  id: string;
+  username: string;
+  publiName: string;
+  email: string;
+  phone: string;
+  updatedAt: Date;
+  roles: RoleDTO[];
+  permissions: PermissionDTO[];
+  token: string;
+  jwtExpiryDate: Date;
+  createdAt: Date;
 }

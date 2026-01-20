@@ -1,52 +1,51 @@
 import React, { useState } from "react";
 import {
-  View,
+  Alert,
+  StyleSheet,
   Text,
   TextInput,
-  Button,
-  StyleSheet,
-  Alert,
   TouchableOpacity,
+  View,
 } from "react-native";
-import LoginDTO from "../../../web-api/server/dtos/login-dto";
 import AuthDTO from "../../dtos/auth-dto";
+import LoginDTO from "../../dtos/login-dto";
 import AuthService from "../../services/auth-service";
 import stateService from "../../services/state-service";
 
 export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [loginData, setLoginData] = useState<LoginDTO>({
-    Email: "",
-    Password: "",
+    username: "",
+    password: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
     setIsLoading(true);
-    const { Email, Password } = loginData;
+    const { username, password } = loginData;
 
-    if (!Email || !Password) {
+    if (!username || !password) {
       setIsLoading(false);
-      Alert.alert("Error", "Please enter both email and password.");
+      Alert.alert("Error", "Please enter both username and password.");
       return;
     }
 
     const envelope = await AuthService.LoginAsync(loginData);
 
-    if (envelope.Status === 500) {
+    if (envelope.statusCode === 500) {
       setIsLoading(false);
       Alert.alert("Error", "Network error.");
       return;
     }
 
-    if (envelope.Status !== 200) {
+    if (envelope.statusCode !== 200) {
       setIsLoading(false);
       Alert.alert("Error", "Login failed. Please check your credentials.");
       return;
     }
 
     setIsLoading(false);
-    stateService.setAuth(envelope.Data as AuthDTO);
+    stateService.setAuth(envelope.data as AuthDTO);
     onLogin();
   };
 
@@ -59,17 +58,17 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
       <Text style={styles.title}>Login</Text>
       <TextInput
         style={styles.input}
-        placeholder="Email*"
-        value={loginData.Email}
-        onChangeText={(value) => handleInputChange("Email", value)}
-        keyboardType="email-address"
+        placeholder="Username*"
+        value={loginData.username}
+        onChangeText={(value) => handleInputChange("username", value)}
+        keyboardType="default"
         autoCapitalize="none"
       />
       <TextInput
         style={styles.input}
         placeholder="Password*"
-        value={loginData.Password}
-        onChangeText={(value) => handleInputChange("Password", value)}
+        value={loginData.password}
+        onChangeText={(value) => handleInputChange("password", value)}
         secureTextEntry
       />
       <TouchableOpacity
